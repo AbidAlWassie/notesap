@@ -1,16 +1,19 @@
+// app/api/auth/signin/page.tsx
+
 "use client";
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { FaGithub, FaGoogle } from "react-icons/fa";
+import { Button } from "@/components/ui/button";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "../../../../components/ui/card";
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function SignIn() {
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
@@ -32,10 +35,10 @@ export default function SignIn() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <button
+          <Button
             onClick={() => handleSignIn("google")}
             disabled={loadingProvider !== null}
-            className="group relative flex w-full items-center justify-center rounded-md border border-transparent bg-blue-700 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+            className="w-full bg-blue-700 text-white hover:bg-blue-600"
           >
             {loadingProvider === "google" ? (
               "Loading..."
@@ -45,11 +48,11 @@ export default function SignIn() {
                 Sign in with Google
               </>
             )}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => handleSignIn("github")}
             disabled={loadingProvider !== null}
-            className="group relative flex w-full items-center justify-center rounded-md border border-transparent bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
+            className="w-full bg-gray-900 text-white hover:bg-gray-800"
           >
             {loadingProvider === "github" ? (
               "Loading..."
@@ -59,7 +62,7 @@ export default function SignIn() {
                 Sign in with GitHub
               </>
             )}
-          </button>
+          </Button>
         </CardContent>
         <CardFooter>
           <p className="mx-auto text-xs text-gray-400">

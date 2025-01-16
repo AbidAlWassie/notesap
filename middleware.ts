@@ -1,20 +1,27 @@
-import { auth, BASE_PATH } from "@/auth";
-import { NextResponse } from "next/server";
+// middleware.ts
+
+import { NextRequest as NextRequestBase, NextResponse } from "next/server";
+import { auth } from "./auth";
+
+interface NextRequest extends NextRequestBase {
+  auth?: { userId: string; token: string };
+}
+
+export default auth((req: NextRequest) => {
+  const isAuthenticated = !!req.auth;
+  const isAuthPage = req.nextUrl.pathname.startsWith("/api/auth");
+
+  if (isAuthPage) {
+    return NextResponse.next();
+  }
+
+  if (!isAuthenticated) {
+    return NextResponse.redirect(new URL("/api/auth/signin", req.url));
+  }
+
+  return NextResponse.next();
+}) as (req: NextRequest) => Promise<NextResponse>;
 
 export const config = {
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
-
-export default auth((req) => {
-  const reqUrl = new URL(req.url);
-  if (!req.auth && reqUrl?.pathname !== "/") {
-    return NextResponse.redirect(
-      new URL(
-        `${BASE_PATH}/signin?callbackUrl=${encodeURIComponent(
-          reqUrl?.pathname
-        )}`,
-        req.url
-      )
-    );
-  }
-});
