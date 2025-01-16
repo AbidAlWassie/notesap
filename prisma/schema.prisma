@@ -18,7 +18,6 @@ model User {
   accounts         Account[]
   authenticator    Authenticator[]
   sessions         Session[]
-  notes         Note[]
 }
 
 
@@ -71,14 +70,4 @@ model Authenticator {
   user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, credentialID])
-}
-
-model Note {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }

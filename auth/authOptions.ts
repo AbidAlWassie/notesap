@@ -5,6 +5,7 @@ import { JWT } from "next-auth/jwt";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import prisma from "../lib/db";
+import { initializeUserNotesTable } from "../lib/user-notes";
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -19,7 +20,7 @@ export const authOptions = {
     }),
   ],
   session: {
-    strategy: "jwt" as SessionStrategy, // Explicitly type it as 'jwt'
+    strategy: "jwt" as SessionStrategy,
   },
   callbacks: {
     async session({ session, token }: { session: Session; token: JWT }) {
@@ -28,9 +29,16 @@ export const authOptions = {
       }
       return session;
     },
+    async signIn({ user }: { user: { id: string } }) {
+      if (user.id) {
+        await initializeUserNotesTable(user.id);
+      }
+      return true;
+    },
   },
   pages: {
     signIn: "/auth/signin",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
+
