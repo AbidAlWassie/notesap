@@ -1,14 +1,10 @@
-import NextAuth, { AuthOptions } from "next-auth";
+// auth/authOptions.ts
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
-import prisma from "./lib/db";
+import prisma from "./../lib/db";
 
-if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error("Please provide process.env.NEXTAUTH_SECRET");
-}
-
-const authOptions: AuthOptions = {
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -36,7 +32,3 @@ const authOptions: AuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
-
-const handler = NextAuth(authOptions);
-
-export { handler as GET, handler as POST };
