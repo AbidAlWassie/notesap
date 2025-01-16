@@ -1,16 +1,14 @@
-// auth.ts
+import NextAuth, { AuthOptions } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import prisma from "./lib/db";
 
-export const {
-  handlers: { GET, POST },
-  auth,
-  signIn,
-  signOut,
-} = NextAuth({
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error("Please provide process.env.NEXTAUTH_SECRET");
+}
+
+const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -22,10 +20,13 @@ export const {
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
   ],
+  session: {
+    strategy: "jwt",
+  },
   callbacks: {
-    async session({ session, user }) {
+    async session({ session, token }) {
       if (session?.user) {
-        session.user.id = user.id;
+        session.user.id = token.sub!;
       }
       return session;
     },
@@ -34,4 +35,8 @@ export const {
     signIn: "/auth/signin",
   },
   secret: process.env.NEXTAUTH_SECRET,
-});
+};
+
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST };
