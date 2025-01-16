@@ -24,24 +24,42 @@ export async function createNote(userId: string, title: string, content: string)
 }
 
 export async function getNotes(userId: string) {
-  const { rows } = await tursoClient.execute({
-    sql: `SELECT * FROM notes_${userId} ORDER BY updated_at DESC`,
-    args: [],
-  });
-  return rows;
+  try {
+    const { rows } = await tursoClient.execute({
+      sql: `SELECT * FROM notes_${userId} ORDER BY created_at DESC`,
+      args: [],
+    });
+    return rows;
+  } catch (error) {
+    console.error('Error fetching notes:', error);
+    throw error;
+  }
 }
 
 export async function updateNote(userId: string, id: string, title: string, content: string) {
-  const now = Date.now();
-  await tursoClient.execute({
-    sql: `UPDATE notes_${userId} SET title = ?, content = ?, updated_at = ? WHERE id = ?`,
-    args: [title, content, now, id],
-  });
+  const timestamp = Date.now();
+  try {
+    await tursoClient.execute({
+      sql: `UPDATE notes_${userId} SET title = ?, content = ?, updated_at = ? WHERE id = ?`,
+      args: [title, content, timestamp, id],
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating note:', error);
+    throw error;
+  }
 }
 
 export async function deleteNote(userId: string, id: string) {
-  await tursoClient.execute({
-    sql: `DELETE FROM notes_${userId} WHERE id = ?`,
-    args: [id],
-  });
+  try {
+    await tursoClient.execute({
+      sql: `DELETE FROM notes_${userId} WHERE id = ?`,
+      args: [id],
+    });
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting note:', error);
+    throw error;
+  }
 }
+
