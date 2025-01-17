@@ -1,11 +1,8 @@
 // app/api/auth/signin/page.tsx
 
-"use client";
+"use client"
 
-import { signIn } from "next-auth/react";
-import { useState } from "react";
-import { FaGithub, FaGoogle } from "react-icons/fa";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -13,15 +10,31 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/ui/card"
+import { signIn } from "next-auth/react"
+import { useSearchParams } from "next/navigation"
+import { useState } from "react"
+import { FaGithub, FaGoogle } from "react-icons/fa"
 
 export default function SignIn() {
-  const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
+  const [loadingProvider, setLoadingProvider] = useState<string | null>(null)
+  const searchParams = useSearchParams()
+  const error = searchParams.get("error")
+  const callbackUrl = searchParams.get("callbackUrl") || "/"
 
-  const handleSignIn = (provider: "google" | "github") => {
-    setLoadingProvider(provider);
-    signIn(provider, { callbackUrl: "/" });
-  };
+  const handleSignIn = async (provider: "google" | "github") => {
+    try {
+      setLoadingProvider(provider)
+      await signIn(provider, {
+        callbackUrl,
+        redirect: true,
+      })
+    } catch (error) {
+      console.error("Sign in error:", error)
+    } finally {
+      setLoadingProvider(null)
+    }
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-800 px-4 py-12 sm:px-6 lg:px-8">
@@ -33,6 +46,13 @@ export default function SignIn() {
           <CardDescription className="pt-2 text-center text-gray-300">
             Choose your preferred sign in method
           </CardDescription>
+          {error && (
+            <p className="mt-2 text-center text-sm text-red-400">
+              {error === "AccessDenied"
+                ? "Access denied. Please try again."
+                : "An error occurred. Please try again."}
+            </p>
+          )}
         </CardHeader>
         <CardContent className="space-y-6">
           <Button
@@ -71,5 +91,5 @@ export default function SignIn() {
         </CardFooter>
       </Card>
     </div>
-  );
+  )
 }

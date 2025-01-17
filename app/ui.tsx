@@ -1,23 +1,23 @@
 // app/ui.tsx
-"use client";
-import Footer from "@/components/layouts/Footer";
-import { Navbar } from "@/components/layouts/Navbar";
-import Notes from "@/components/Notes";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { Button } from "../components/ui/button";
+"use client"
+import Footer from "@/components/layouts/Footer"
+import { Navbar } from "@/components/layouts/Navbar"
+import Notes from "@/components/Notes"
+import { useSession } from "next-auth/react"
+import Link from "next/link"
+import { Button } from "../components/ui/button"
 
-export default function Home() {
-  const { status } = useSession();
+export default function UI() {
+  const { status } = useSession()
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col">
+    <div className="flex min-h-screen flex-col bg-slate-900 text-slate-100">
       <Navbar />
       <div className="flex-grow">
-        {status === "loading" && <p className="text-center py-8">Loading...</p>}
+        {status === "loading" && <p className="py-8 text-center">Loading...</p>}
 
         {status === "unauthenticated" && (
-          <div className="text-center py-8">
+          <div className="py-8 text-center">
             <p className="mb-4">Please sign in to access your notes.</p>
             <Button
               asChild
@@ -32,5 +32,5 @@ export default function Home() {
       </div>
       <Footer />
     </div>
-  );
+  )
 }
