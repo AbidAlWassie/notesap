@@ -135,8 +135,4 @@ We welcome contributions! To contribute to the project:
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
-
----
-
-This enhanced README should give you a clearer, more complete picture of your multi-tenant note-taking app, highlighting features, setup instructions, and deployment processes. Let me know if you'd like me to make any adjustments or further improvements!
+This project is licensed under the [Creative Commons Legal Code](LICENSE).
