@@ -13,12 +13,23 @@ import {
 } from "@/components/ui/card"
 import { signIn } from "next-auth/react"
 import { useSearchParams } from "next/navigation"
-import { useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { FaGithub, FaGoogle } from "react-icons/fa"
 
-export default function SignIn() {
+function SignInComponent() {
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null)
+  const [isClient, setIsClient] = useState(false)
   const searchParams = useSearchParams()
+
+  useEffect(() => {
+    // Ensure it's executed on the client-side only
+    setIsClient(true)
+  }, [])
+
+  if (!isClient) {
+    return <div>Loading...</div>
+  }
+
   const error = searchParams.get("error")
   const callbackUrl = searchParams.get("callbackUrl") || "/"
 
@@ -44,7 +55,7 @@ export default function SignIn() {
             Sign In
           </CardTitle>
           <CardDescription className="pt-2 text-center text-gray-300">
-            Choose your preferred sign in method
+            Choose your preferred sign-in method
           </CardDescription>
           {error && (
             <p className="mt-2 text-center text-sm text-red-400">
@@ -91,5 +102,14 @@ export default function SignIn() {
         </CardFooter>
       </Card>
     </div>
+  )
+}
+
+// Wrapping SignInComponent with Suspense for dynamic behavior
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInComponent />
+    </Suspense>
   )
 }

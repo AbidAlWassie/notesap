@@ -1,6 +1,5 @@
 // app/layout.tsx
-import { auth } from "@/auth"
-import { SessionProvider } from "@/components/providers/SessionProvider"
+import { ThemeProvider } from "@/components/providers/ThemeProvider"
 import { Geist, Azeret_Mono as Geist_Mono } from "next/font/google"
 import "./globals.css"
 
@@ -19,14 +18,12 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth()
-
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SessionProvider session={session}>{children}</SessionProvider>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   )

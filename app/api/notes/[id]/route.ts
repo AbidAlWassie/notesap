@@ -1,13 +1,16 @@
-// app/api/notes/[id]/route.ts
+// app/api/notes/id/route.ts
 import { auth } from "@/auth"
 import { deleteNote, updateNote } from "@/lib/user-notes"
 import { NextRequest, NextResponse } from "next/server"
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } },
-) {
+// Define the Context type with params as a Promise
+type Context = {
+  params: Promise<{ id: string }>
+}
+
+export async function PUT(req: NextRequest, context: Context) {
   try {
+    const { id } = await context.params // Await the Promise to get params
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
@@ -21,7 +24,7 @@ export async function PUT(
       )
     }
 
-    await updateNote(session.user.id, params.id, title, content)
+    await updateNote(session.user.id, id, title, content)
     return NextResponse.json({ message: "Note updated successfully" })
   } catch (error) {
     console.error("Error updating note:", error)
@@ -32,17 +35,15 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function DELETE(req: NextRequest, context: Context) {
   try {
+    const { id } = await context.params // Await the Promise to get params
     const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    await deleteNote(session.user.id, params.id)
+    await deleteNote(session.user.id, id)
     return NextResponse.json({ message: "Note deleted successfully" })
   } catch (error) {
     console.error("Error deleting note:", error)

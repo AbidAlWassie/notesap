@@ -1,3 +1,5 @@
+// app/api/auth/error/page.tsx
+
 "use client"
 
 import { Button } from "@/components/ui/button"
@@ -10,10 +12,22 @@ import {
 } from "@/components/ui/card"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
+import { Suspense, useEffect, useState } from "react"
 
-export default function ErrorPage() {
+// Client-side component that uses `useSearchParams`
+function ErrorPageContent() {
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   const searchParams = useSearchParams()
   const error = searchParams.get("error")
+
+  if (!isClient) {
+    return <div>Loading...</div> // Handle loading state
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-800 px-4 py-12 sm:px-6 lg:px-8">
@@ -38,5 +52,14 @@ export default function ErrorPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+// Wrap the client-side component in Suspense
+export default function ErrorPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ErrorPageContent />
+    </Suspense>
   )
 }

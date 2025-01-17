@@ -13,18 +13,17 @@ const nextConfig = {
     ],
   },
   async headers() {
+    const origin =
+      process.env.NODE_ENV === "production"
+        ? "https://notesap-test.vercel.app"
+        : "http://localhost:3000"
+
     return [
       {
         source: "/:path*",
         headers: [
           { key: "Access-Control-Allow-Credentials", value: "true" },
-          {
-            key: "Access-Control-Allow-Origin",
-            value:
-              process.env.NODE_ENV === "production"
-                ? "https://notesap-test.vercel.app"
-                : "http://localhost:3000",
-          },
+          { key: "Access-Control-Allow-Origin", value: origin },
           {
             key: "Access-Control-Allow-Methods",
             value: "GET,OPTIONS,PATCH,DELETE,POST,PUT",
@@ -40,8 +39,8 @@ const nextConfig = {
           },
         ],
       },
-    ];
+    ]
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
