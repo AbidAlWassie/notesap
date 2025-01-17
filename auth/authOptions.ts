@@ -32,18 +32,13 @@ export const authOptions = {
     async signIn({ user }: { user: { id: string } }) {
       try {
         if (user.id) {
-          // Try to initialize the database but don't block sign-in if it fails
-          try {
-            await initializeUserDatabase(user.id)
-          } catch (error) {
-            console.error("Error initializing user database:", error)
-            // Continue with sign-in even if database creation fails
-          }
+          // Ensure the actual user ID is passed
+          await initializeUserDatabase(user.id)
         }
-        return true // Always allow sign-in
+        return true
       } catch (error) {
         console.error("Error in signIn callback:", error)
-        return true // Always allow sign-in
+        return true // Allow sign-in even if there's an error
       }
     },
   },

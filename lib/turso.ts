@@ -15,9 +15,6 @@ export function getUserClient(userId: string) {
 
 export async function createUserDatabase(userId: string) {
   try {
-    console.log(`Creating database for user: ${userId}`)
-
-    // Make sure to replace 'your-org-id' with your actual Turso organization ID
     const tursoOrgId = process.env.TURSO_ORG_ID
     if (!tursoOrgId) {
       throw new Error("TURSO_ORG_ID is not set in environment variables")
@@ -47,7 +44,7 @@ export async function createUserDatabase(userId: string) {
     }
 
     console.log(`Database created successfully for user: ${userId}`)
-    // Wait for database to be ready
+    // Wait for the database to be ready
     await new Promise((resolve) => setTimeout(resolve, 5000))
 
     return await response.json()

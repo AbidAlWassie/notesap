@@ -5,22 +5,21 @@ import { createUserDatabase, getUserClient } from "./turso"
 export async function initializeUserDatabase(userId: string) {
   try {
     console.log(`Initializing database for user: ${userId}`)
-    await createUserDatabase(userId)
+    const success = await createUserDatabase(userId)
 
-    // Initialize the notes table in the new database
-    const client = getUserClient(userId)
-    await client.execute(`
-      CREATE TABLE IF NOT EXISTS notes (
-        id TEXT PRIMARY KEY,
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        created_at INTEGER NOT NULL,
-        updated_at INTEGER NOT NULL
-      )
-    `)
-
-    console.log(`Database initialized successfully for user: ${userId}`)
-    return true
+    if (success) {
+      const client = getUserClient(userId)
+      await client.execute(`
+        CREATE TABLE IF NOT EXISTS notes (
+          id TEXT PRIMARY KEY,
+          title TEXT NOT NULL,
+          content TEXT NOT NULL,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL
+        )
+      `)
+      console.log(`User database initialized for: ${userId}`)
+    }
   } catch (error) {
     console.error("Error initializing user database:", error)
     throw error
