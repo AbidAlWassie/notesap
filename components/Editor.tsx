@@ -1,15 +1,24 @@
-"use client";
+// components/Editor.tsx
+"use client"
+import { Editor as TiptapEditor } from "@tiptap/core"
+import { EditorContent } from "@tiptap/react"
+import Toolbar from "./Toolbar"
 
-import { EditorContent, useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
+interface EditorProps {
+  editor: TiptapEditor | null
+}
 
-const Editor = () => {
-  const editor = useEditor({
-    extensions: [StarterKit],
-    content: "<p>Hello World! 🌎️</p>",
-  });
+const Editor = ({ editor }: EditorProps) => {
+  if (!editor) return null
 
-  return <EditorContent editor={editor} />;
-};
+  return (
+    <div className="editor-container">
+      <Toolbar editor={editor} />
+      <div className="min-h-[300px] bg-gray-800/30 p-4">
+        <EditorContent editor={editor} />
+      </div>
+    </div>
+  )
+}
 
-export default Editor;
+export default Editor

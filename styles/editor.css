@@ -1,0 +1,62 @@
+/* src/styles/editor.css */
+
+
+.ProseMirror {
+  @apply text-gray-100 min-h-[200px] h-full prose prose-invert max-w-none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  @apply text-gray-400;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.ProseMirror-focused {
+  outline: none !important;
+}
+
+h1 {
+  @apply text-3xl font-bold mb-4 text-gray-100 !important;
+}
+
+h2 {
+  @apply text-2xl font-bold mb-3 text-gray-100 !important;
+}
+
+h3 {
+  @apply text-xl font-bold mb-2 text-gray-100 !important;
+}
+
+.ProseMirror ul {
+  @apply list-disc pl-6 mb-4;
+}
+
+.ProseMirror ol {
+  @apply list-decimal pl-6 mb-4;
+}
+
+.ProseMirror li {
+  @apply mb-1;
+}
+
+.ProseMirror a {
+  @apply text-blue-400 underline;
+}
+
+.ProseMirror code {
+  @apply bg-gray-800 px-1.5 py-0.5 rounded text-sm;
+}
+
+.ProseMirror mark {
+  background-color: inherit;
+}
+
+.editor-container {
+  @apply rounded-lg border border-gray-700 bg-gray-800/50 backdrop-blur-sm;
+}
+
+.tiptap {
+  @apply outline-none;
+}
