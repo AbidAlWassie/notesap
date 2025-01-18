@@ -4,10 +4,10 @@ import { createUserDatabase, getUserClient } from "./turso"
 
 export async function initializeUserDatabase(userId: string) {
   try {
-    console.log(`Initializing database for user: ${userId}`)
-    const success = await createUserDatabase(userId)
+    console.log(`Checking/Initializing database for user: ${userId}`)
+    const result = await createUserDatabase(userId)
 
-    if (success) {
+    if (result.success) {
       const client = getUserClient(userId)
       await client.execute(`
         CREATE TABLE IF NOT EXISTS notes (
@@ -18,11 +18,11 @@ export async function initializeUserDatabase(userId: string) {
           updated_at INTEGER NOT NULL
         )
       `)
-      console.log(`User database initialized for: ${userId}`)
+      console.log(`User database checked/initialized for: ${userId}`)
     }
   } catch (error) {
-    console.error("Error initializing user database:", error)
-    throw error
+    console.error("Error checking/initializing user database:", error)
+    // Don't throw the error to avoid breaking the auth flow
   }
 }
 

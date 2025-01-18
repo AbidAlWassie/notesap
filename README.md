@@ -91,6 +91,14 @@ Ensure you have the following installed on your machine:
 
 2. Open `http://localhost:3000` in your browser to access the app.
 
+### Testing Commands
+
+1. To destroy the databases with "user-[id]" using turso cli run:
+
+   ```bash
+   turso db list | grep '^user-' | awk '{print $1}' | xargs -I {} turso db destroy {} -y
+   ```
+
 ### Building for Production
 
 1. Build the application for production:

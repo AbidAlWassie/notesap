@@ -23,23 +23,28 @@ export const authOptions = {
     strategy: "jwt" as SessionStrategy,
   },
   callbacks: {
+    async jwt({ token, user }: { token: JWT; user?: { id: string } | null }) {
+      if (user?.id) {
+        token.userId = user.id
+      }
+      return token
+    },
     async session({ session, token }: { session: Session; token: JWT }) {
-      if (session?.user) {
-        session.user.id = token.sub!
+      if (session?.user && token.userId) {
+        session.user.id = token.userId as string
+
+        // Check and initialize database during session creation
+        try {
+          await initializeUserDatabase(session.user.id)
+        } catch (error) {
+          console.error(
+            "Error checking/initializing database during session:",
+            error,
+          )
+          // Don't throw the error to avoid breaking the auth flow
+        }
       }
       return session
-    },
-    async signIn({ user }: { user: { id: string } }) {
-      try {
-        if (user.id) {
-          // Ensure the actual user ID is passed
-          await initializeUserDatabase(user.id)
-        }
-        return true
-      } catch (error) {
-        console.error("Error in signIn callback:", error)
-        return true // Allow sign-in even if there's an error
-      }
     },
   },
   pages: {

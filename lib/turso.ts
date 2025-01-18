@@ -16,8 +16,27 @@ export function getUserClient(userId: string) {
 export async function createUserDatabase(userId: string) {
   try {
     const tursoOrgId = process.env.TURSO_ORG_ID
-    if (!tursoOrgId) {
-      throw new Error("TURSO_ORG_ID is not set in environment variables")
+    const tursoApiToken = process.env.TURSO_API_TOKEN
+
+    if (!tursoOrgId || !tursoApiToken) {
+      throw new Error(
+        "TURSO_ORG_ID or TURSO_API_TOKEN is not set in environment variables",
+      )
+    }
+
+    // Check if the database already exists
+    const checkResponse = await fetch(
+      `https://api.turso.tech/v1/organizations/${tursoOrgId}/databases/user-${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${tursoApiToken}`,
+        },
+      },
+    )
+
+    if (checkResponse.ok) {
+      console.log(`Database already exists for user: ${userId}`)
+      return { success: true }
     }
 
     const response = await fetch(
@@ -25,7 +44,7 @@ export async function createUserDatabase(userId: string) {
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.TURSO_API_TOKEN}`,
+          Authorization: `Bearer ${tursoApiToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -47,7 +66,7 @@ export async function createUserDatabase(userId: string) {
     // Wait for the database to be ready
     await new Promise((resolve) => setTimeout(resolve, 5000))
 
-    return await response.json()
+    return { success: true }
   } catch (error) {
     console.error("Error creating user database:", error)
     throw error
