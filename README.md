@@ -2,7 +2,7 @@
 
 This is a multi-tenant note-taking application built with **Next.js v15**, **libSQL**, **Prisma**, and **Next-Auth V5**. The app supports multiple users (tenants), each with its own set of notes, users, and workspaces, allowing seamless collaboration and efficient note management.
 
-Deployed to vercel here: [Live Demo](https://notesap-test.vercel.app)
+Deployed to vercel here: [Live Demo](https://notesap-beta.vercel.app)
 
 ## Features
 
