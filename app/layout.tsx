@@ -1,5 +1,6 @@
 // app/layout.tsx
 import { ThemeProvider } from "@/components/providers/ThemeProvider"
+import type { Metadata } from "next"
 import { Geist, Azeret_Mono as Geist_Mono } from "next/font/google"
 import "./../styles/globals.css"
 
@@ -12,6 +13,11 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 })
+
+export const metadata: Metadata = {
+  title: "Notesap | An elegant note-taking app",
+  description: "Developed by Abid Al Wassie",
+}
 
 export default async function RootLayout({
   children,
