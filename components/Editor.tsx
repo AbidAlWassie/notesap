@@ -14,7 +14,7 @@ const Editor = ({ editor }: EditorProps) => {
   return (
     <div className="editor-container">
       <Toolbar editor={editor} />
-      <div className="min-h-[300px] bg-gray-800/30 p-4">
+      <div className="min-h-[300px] bg-gray-800/30 p-2">
         <EditorContent editor={editor} />
       </div>
     </div>

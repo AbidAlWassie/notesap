@@ -18,15 +18,19 @@
 }
 
 h1 {
-  @apply text-3xl font-bold mb-4 text-gray-100 !important;
+  @apply text-3xl font-bold my-4 text-gray-100 !important;
 }
 
 h2 {
-  @apply text-2xl font-bold mb-3 text-gray-100 !important;
+  @apply text-2xl font-bold my-3 text-gray-100 !important;
 }
 
 h3 {
-  @apply text-xl font-bold mb-2 text-gray-100 !important;
+  @apply text-xl font-bold my-2 text-gray-100 !important;
+}
+
+p {
+  @apply m-1 text-gray-50 !important;
 }
 
 .ProseMirror ul {
@@ -59,4 +63,14 @@ h3 {
 
 .tiptap {
   @apply outline-none;
+}
+
+::-moz-selection {
+  color: initial rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+::selection {
+  color: initial rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
 }
