@@ -1,6 +1,9 @@
 // components/Notes.tsx
 "use client"
 
+import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import Color from "@tiptap/extension-color"
 import Highlight from "@tiptap/extension-highlight"
@@ -9,13 +12,10 @@ import TextStyle from "@tiptap/extension-text-style"
 import Underline from "@tiptap/extension-underline"
 import { useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
-import { Loader2, Menu, Plus, Trash, X } from "lucide-react"
+import { Loader2, Plus, Trash } from "lucide-react"
 import { useEffect, useState } from "react"
 import "./../styles/editor.css"
 import Editor from "./Editor"
-import { Button } from "./ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
-import { Input } from "./ui/input"
 
 interface Note {
   id: string
@@ -23,7 +23,17 @@ interface Note {
   content: string
   created_at: number
   updated_at: number
+  color?: string
 }
+
+const noteColors = [
+  "bg-purple-400/20",
+  "bg-pink-400/20",
+  "bg-green-400/20",
+  "bg-orange-400/20",
+  "bg-blue-400/20",
+  "bg-yellow-400/20",
+]
 
 export default function Notes() {
   const [notes, setNotes] = useState<Note[]>([])
@@ -31,7 +41,7 @@ export default function Notes() {
   const [title, setTitle] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
 
   const editor = useEditor({
     extensions: [
@@ -53,16 +63,6 @@ export default function Notes() {
     fetchNotes()
   }, [])
 
-  useEffect(() => {
-    if (selectedNote) {
-      setTitle(selectedNote.title)
-      editor?.commands.setContent(selectedNote.content)
-    } else {
-      setTitle("")
-      editor?.commands.setContent("")
-    }
-  }, [selectedNote, editor])
-
   const fetchNotes = async () => {
     setIsLoading(true)
     setError(null)
@@ -79,7 +79,13 @@ export default function Notes() {
       }
 
       const data = await response.json()
-      setNotes(data)
+      const notesWithColors = data.map((note: Note) => ({
+        ...note,
+        color:
+          note.color ||
+          noteColors[Math.floor(Math.random() * noteColors.length)],
+      }))
+      setNotes(notesWithColors)
     } catch (error) {
       console.error("Failed to fetch notes:", error)
       setError("Failed to fetch notes. Please try again.")
@@ -102,14 +108,22 @@ export default function Notes() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ title, content: editor.getHTML() }),
+            body: JSON.stringify({
+              title,
+              content: editor.getHTML(),
+              color: selectedNote.color,
+            }),
           })
         : await fetch("/api/notes", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ title, content: editor.getHTML() }),
+            body: JSON.stringify({
+              title,
+              content: editor.getHTML(),
+              color: noteColors[Math.floor(Math.random() * noteColors.length)],
+            }),
           })
 
       if (!response.ok) {
@@ -120,6 +134,7 @@ export default function Notes() {
       setSelectedNote(null)
       setTitle("")
       editor?.commands.setContent("")
+      setIsEditing(false)
     } catch (error) {
       console.error("Failed to save note:", error)
       setError("Failed to save note. Please try again.")
@@ -139,6 +154,7 @@ export default function Notes() {
       setSelectedNote(null)
       setTitle("")
       editor?.commands.setContent("")
+      setIsEditing(false)
     } catch (error) {
       console.error("Failed to delete note:", error)
       setError("Failed to delete note. Please try again.")
@@ -146,94 +162,62 @@ export default function Notes() {
     setIsLoading(false)
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    )
+  }
+
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] flex-col md:flex-row">
-      {/* Mobile Sidebar Toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="hover: absolute left-4 top-4 bg-indigo-700 hover:bg-indigo-600 hover:text-indigo-50 md:hidden"
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-      >
-        {isSidebarOpen ? <X /> : <Menu />}
-      </Button>
-
-      {/* Sidebar */}
-      <Card
-        className={cn(
-          "w-full border-0 border-gray-700 bg-gray-900/50 backdrop-blur-sm md:w-80 md:rounded-none md:border-r",
-          isSidebarOpen ? "block" : "hidden md:block",
-        )}
-      >
-        <CardHeader>
-          <CardTitle className="text-gray-100">Notes</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-gray-100" />
-            </div>
-          ) : error ? (
-            <p className="text-sm text-red-500">{error}</p>
-          ) : (
-            <ul className="space-y-2">
-              {notes.length === 0 ? (
-                <li className="text-sm text-gray-400">
-                  No notes found. Create a new one!
-                </li>
-              ) : (
-                notes.map((note) => (
-                  <li key={note.id}>
-                    <Button
-                      variant={
-                        selectedNote?.id === note.id ? "secondary" : "ghost"
-                      }
-                      className="w-full justify-start bg-indigo-700 text-left text-gray-100 hover:bg-indigo-800 hover:text-gray-50"
-                      onClick={() => {
-                        setSelectedNote(note)
-                        setIsSidebarOpen(false)
-                      }}
-                    >
-                      <span className="truncate">{note.title}</span>
-                    </Button>
-                  </li>
-                ))
-              )}
-            </ul>
-          )}
-          <Button
-            onClick={() => {
-              setSelectedNote(null)
-              setIsSidebarOpen(false)
-            }}
-            className="mt-4 w-full bg-purple-600 text-purple-50 hover:bg-purple-700"
-          >
-            <Plus className="mr-2 h-4 w-4" /> New Note
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Main Content */}
-      <div className="flex-1 p-4">
-        <Card className="h-full border-0 bg-gray-900/50 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-gray-100">
-              {selectedNote ? "Edit Note" : "New Note"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+    <div className="min-h-[calc(100vh-4rem)] bg-indigo-950 p-4">
+      <div className="mx-auto max-w-7xl">
+        {isEditing ? (
+          <Card className="border-indigo-800 bg-indigo-900/50 p-4">
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Title"
-              className="mb-4 border-gray-700 bg-gray-800/50 text-gray-100"
+              placeholder="Note title..."
+              className="mb-4 border-indigo-800 bg-indigo-900/50 text-indigo-100 placeholder:text-indigo-400"
             />
-            <Editor editor={editor} />
-            <div className="mt-4 flex justify-between">
+            <div className="mb-4 rounded-lg border border-indigo-800 bg-indigo-900/50">
+              <Editor editor={editor} />
+            </div>
+            <div className="flex justify-between">
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  onClick={() => setIsEditing(false)}
+                  className="text-indigo-100 hover:bg-indigo-800 hover:text-indigo-50"
+                >
+                  Cancel
+                </Button>
+                {selectedNote && (
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      handleDelete(selectedNote.id)
+                    }}
+                    className="bg-red-600 text-red-50 hover:bg-red-700"
+                  >
+                    <Trash className="mr-2 h-4 w-4" />
+                    Delete
+                  </Button>
+                )}
+              </div>
               <Button
                 onClick={handleSave}
-                disabled={isLoading || !title.trim() || !editor?.getHTML()}
-                className="bg-purple-600 text-purple-50 hover:bg-purple-700"
+                disabled={isLoading || !title.trim()}
+                className="bg-indigo-600 text-indigo-50 hover:bg-indigo-700"
               >
                 {isLoading ? (
                   <>
@@ -244,25 +228,47 @@ export default function Notes() {
                   "Save"
                 )}
               </Button>
-              {selectedNote && (
-                <Button
-                  onClick={() => handleDelete(selectedNote.id)}
-                  variant="destructive"
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Trash className="mr-2 h-4 w-4" />
-                  )}
-                  Delete
-                </Button>
-              )}
             </div>
-            {error && <p className="mt-4 text-sm text-red-500">{error}</p>}
-          </CardContent>
-        </Card>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {notes.map((note) => (
+              <Card
+                key={note.id}
+                className={cn(
+                  "group relative cursor-pointer border-0 p-4 transition-all hover:scale-105",
+                  note.color,
+                )}
+                onClick={() => {
+                  setSelectedNote(note)
+                  setTitle(note.title)
+                  editor?.commands.setContent(note.content)
+                  setIsEditing(true)
+                }}
+              >
+                <h3 className="mb-2 line-clamp-1 text-lg font-semibold text-indigo-100">
+                  {note.title}
+                </h3>
+                <div
+                  className="line-clamp-4 text-sm text-indigo-200"
+                  dangerouslySetInnerHTML={{ __html: note.content }}
+                />
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
+      <Button
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-indigo-600 p-0 text-indigo-50 shadow-lg hover:bg-indigo-700"
+        onClick={() => {
+          setSelectedNote(null)
+          setTitle("")
+          editor?.commands.setContent("")
+          setIsEditing(true)
+        }}
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
     </div>
   )
 }

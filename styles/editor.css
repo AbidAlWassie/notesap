@@ -1,5 +1,4 @@
-/* src/styles/editor.css */
-
+/* styles/editor.css */
 
 .ProseMirror {
   @apply text-gray-100 min-h-[200px] h-full prose prose-invert max-w-none;
