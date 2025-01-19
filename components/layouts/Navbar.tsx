@@ -1,6 +1,6 @@
-"use client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+"use client"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,17 +8,17 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+} from "@/components/ui/dropdown-menu"
+import { useSession } from "next-auth/react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 export function Navbar() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
+  const { data: session, status } = useSession()
+  const router = useRouter()
 
   return (
-    <nav className="bg-slate-800 py-4 px-6 flex justify-between items-center">
+    <nav className="flex items-center justify-between bg-slate-800 px-6 py-4">
       <Link
         href="/"
         className="text-2xl font-bold text-indigo-400 hover:text-indigo-300"
@@ -41,7 +41,7 @@ export function Navbar() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-56 bg-gray-800 border-gray-600"
+            className="w-56 border-gray-600 bg-gray-800"
             align="end"
             forceMount
           >
@@ -55,23 +55,23 @@ export function Navbar() {
                 </p>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="bg-slate-700" />
             <DropdownMenuItem
               onClick={() => router.push("/profile")}
-              className="cursor-pointer py-2"
+              className="cursor-pointer py-2 text-gray-200"
             >
               Profile
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => router.push("/settings")}
-              className="cursor-pointer py-2"
+              className="cursor-pointer py-2 text-gray-200"
             >
               Settings
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
+            <DropdownMenuSeparator className="bg-slate-700" />
             <DropdownMenuItem
               onClick={() => router.push("/api/auth/signout")}
-              className="cursor-pointer py-2"
+              className="cursor-pointer py-2 text-gray-200"
             >
               Log out
             </DropdownMenuItem>
@@ -79,5 +79,5 @@ export function Navbar() {
         </DropdownMenu>
       )}
     </nav>
-  );
+  )
 }
