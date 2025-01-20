@@ -24,7 +24,7 @@ export function Navbar() {
         href="/"
         className="text-2xl font-bold text-indigo-400 hover:text-indigo-300"
       >
-        📒 Notesapp
+        📒 Notesap
       </Link>
       {status === "authenticated" && session?.user && (
         <DropdownMenu>

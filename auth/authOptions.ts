@@ -2,10 +2,15 @@
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { Session, SessionStrategy } from "next-auth"
 import { JWT } from "next-auth/jwt"
+import DiscordProvider from "next-auth/providers/discord"
 import GithubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
+// import EmailProvider from "next-auth/providers/email"
+// import { Resend } from "resend"
+
 import prisma from "../lib/db"
 import { initializeUserDatabase } from "../lib/user-notes"
+// const resend = new Resend(process.env.RESEND_API_KEY)
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
@@ -18,6 +23,37 @@ export const authOptions = {
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
+    DiscordProvider({
+      clientId: process.env.DISCORD_CLIENT_ID!,
+      clientSecret: process.env.DISCORD_CLIENT_SECRET!,
+    }),
+    // EmailProvider({
+    //   // Use Resend as the email service provider
+    //   server: {
+    //     host: "smtp.resend.com",
+    //     port: 465,
+    //     auth: {
+    //       user: "resend",
+    //       pass: process.env.RESEND_API_KEY,
+    //     },
+    //   },
+    //   from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+    //   // Custom sendVerificationRequest function
+    //   sendVerificationRequest: async ({ identifier, url, provider }) => {
+    //     try {
+    //       const result = await resend.emails.send({
+    //         from: provider.from,
+    //         to: identifier,
+    //         subject: "Sign in to Notesapp",
+    //         html: `<p>Click <a href="${url}">here</a> to sign in to Notesapp.</p>`,
+    //       })
+    //       console.log("Verification email sent:", result)
+    //     } catch (error) {
+    //       console.error("Error sending verification email:", error)
+    //       throw new Error("Failed to send verification email")
+    //     }
+    //   },
+    // }),
   ],
   session: {
     strategy: "jwt" as SessionStrategy,
