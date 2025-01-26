@@ -1,6 +1,11 @@
 // components/Notes.tsx
 "use client"
 
+import {
+  createNoteAction,
+  deleteNoteAction,
+  updateNoteAction,
+} from "@/app/actions"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -13,6 +18,7 @@ import Underline from "@tiptap/extension-underline"
 import { useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { Loader2, Plus, Trash } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import "./../styles/editor.css"
 import Editor from "./Editor"
@@ -35,13 +41,24 @@ const noteColors = [
   "bg-yellow-400/20",
 ]
 
-export default function Notes() {
+export default function Notes({
+  initialNotes,
+  userId,
+}: {
+  initialNotes: Note[]
+  userId: string
+}) {
   const [notes, setNotes] = useState<Note[]>([])
   const [selectedNote, setSelectedNote] = useState<Note | null>(null)
   const [title, setTitle] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
+  const router = useRouter()
+
+  useEffect(() => {
+    setNotes(initialNotes)
+  }, [initialNotes])
 
   const editor = useEditor({
     extensions: [
@@ -56,42 +73,10 @@ export default function Notes() {
         openOnClick: false,
       }),
     ],
-    content: "",
+    content: initialNotes || "",
+    editable: true,
+    immediatelyRender: false,
   })
-
-  useEffect(() => {
-    fetchNotes()
-  }, [])
-
-  const fetchNotes = async () => {
-    setIsLoading(true)
-    setError(null)
-    try {
-      const response = await fetch("/api/notes", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const data = await response.json()
-      const notesWithColors = data.map((note: Note) => ({
-        ...note,
-        color:
-          note.color ||
-          noteColors[Math.floor(Math.random() * noteColors.length)],
-      }))
-      setNotes(notesWithColors)
-    } catch (error) {
-      console.error("Failed to fetch notes:", error)
-      setError("Failed to fetch notes. Please try again.")
-    }
-    setIsLoading(false)
-  }
 
   const handleSave = async () => {
     if (!title.trim() || !editor?.getHTML()) {
@@ -102,35 +87,12 @@ export default function Notes() {
     setIsLoading(true)
     setError(null)
     try {
-      const response = selectedNote
-        ? await fetch(`/api/notes/${selectedNote.id}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              title,
-              content: editor.getHTML(),
-              color: selectedNote.color,
-            }),
-          })
-        : await fetch("/api/notes", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              title,
-              content: editor.getHTML(),
-              color: noteColors[Math.floor(Math.random() * noteColors.length)],
-            }),
-          })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+      if (selectedNote) {
+        await updateNoteAction(userId, selectedNote.id, title, editor.getHTML())
+      } else {
+        await createNoteAction(userId, title, editor.getHTML())
       }
-
-      await fetchNotes()
+      router.refresh()
       setSelectedNote(null)
       setTitle("")
       editor?.commands.setContent("")
@@ -146,11 +108,8 @@ export default function Notes() {
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(`/api/notes/${id}`, { method: "DELETE" })
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      await fetchNotes()
+      await deleteNoteAction(userId, id)
+      router.refresh()
       setSelectedNote(null)
       setTitle("")
       editor?.commands.setContent("")
@@ -160,14 +119,6 @@ export default function Notes() {
       setError("Failed to delete note. Please try again.")
     }
     setIsLoading(false)
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
-      </div>
-    )
   }
 
   if (error) {
@@ -190,7 +141,7 @@ export default function Notes() {
               className="mb-4 border-indigo-800 bg-indigo-900/50 text-indigo-100 placeholder:text-indigo-400"
             />
             <div className="mb-4 rounded-lg border border-indigo-800 bg-indigo-900/50">
-              <Editor editor={editor} />
+              {editor && <Editor editor={editor} />}
             </div>
             <div className="flex justify-between">
               <div className="flex gap-2">
@@ -204,9 +155,7 @@ export default function Notes() {
                 {selectedNote && (
                   <Button
                     variant="destructive"
-                    onClick={() => {
-                      handleDelete(selectedNote.id)
-                    }}
+                    onClick={() => handleDelete(selectedNote.id)}
                     className="bg-red-600 text-red-50 hover:bg-red-700"
                   >
                     <Trash className="mr-2 h-4 w-4" />
@@ -237,7 +186,7 @@ export default function Notes() {
                 key={note.id}
                 className={cn(
                   "group relative cursor-pointer border-0 p-4 transition-all hover:scale-105",
-                  note.color,
+                  note.color || noteColors[0],
                 )}
                 onClick={() => {
                   setSelectedNote(note)

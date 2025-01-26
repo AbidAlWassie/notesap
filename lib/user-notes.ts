@@ -49,15 +49,42 @@ export async function createNote(
 
 export async function getNotes(userId: string) {
   const client = getUserClient(userId)
-  try {
-    const { rows } = await client.execute({
-      sql: `SELECT * FROM notes ORDER BY created_at DESC`,
-      args: [],
-    })
-    return rows
-  } catch (error) {
-    console.error("Error fetching notes:", error)
-    throw error
+  const result = await client.execute(
+    "SELECT * FROM notes ORDER BY updated_at DESC",
+  )
+
+  // Convert the result to plain objects and ensure dates are strings
+  return result.rows.map((note) => ({
+    id: String(note.id),
+    title: String(note.title),
+    content: String(note.content),
+    created_at: note.created_at
+      ? new Date(Number(note.created_at)).toISOString()
+      : null,
+    updated_at: note.updated_at
+      ? new Date(Number(note.updated_at)).toISOString()
+      : null,
+  }))
+}
+
+export async function getNoteById(userId: string, noteId: string) {
+  const client = getUserClient(userId)
+  const result = await client.execute({
+    sql: "SELECT * FROM notes WHERE id = ?",
+    args: [noteId],
+  })
+
+  if (result.rows.length === 0) {
+    return null
+  }
+
+  const note = result.rows[0]
+  return {
+    id: note.id as string,
+    title: note.title as string,
+    content: note.content as string,
+    created_at: note.created_at as number,
+    updated_at: note.updated_at as number,
   }
 }
 

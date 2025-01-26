@@ -13,6 +13,7 @@ import {
 import { useSession } from "next-auth/react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import SignInButton from "../SignInButton"
 
 export function Navbar() {
   const { data: session, status } = useSession()
@@ -26,7 +27,7 @@ export function Navbar() {
       >
         📒 Notesap
       </Link>
-      {status === "authenticated" && session?.user && (
+      {status === "authenticated" && session?.user ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -47,7 +48,6 @@ export function Navbar() {
           <DropdownMenuContent
             className="w-56 border-indigo-800 bg-indigo-950"
             align="end"
-            forceMount
           >
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
@@ -81,6 +81,8 @@ export function Navbar() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      ) : (
+        <SignInButton />
       )}
     </nav>
   )

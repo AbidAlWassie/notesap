@@ -1,7 +1,7 @@
 // auth/authOptions.ts
 import { PrismaAdapter } from "@auth/prisma-adapter"
-import { Session, SessionStrategy } from "next-auth"
-import { JWT } from "next-auth/jwt"
+import type { Session, SessionStrategy } from "next-auth"
+import type { JWT } from "next-auth/jwt"
 import DiscordProvider from "next-auth/providers/discord"
 import GithubProvider from "next-auth/providers/github"
 import GoogleProvider from "next-auth/providers/google"
@@ -57,27 +57,37 @@ export const authOptions = {
   ],
   session: {
     strategy: "jwt" as SessionStrategy,
+    maxAge: 7 * 24 * 60 * 60, // 7 days
   },
   callbacks: {
     async jwt({ token, user }: { token: JWT; user?: { id: string } | null }) {
       if (user?.id) {
         token.userId = user.id
+        // Set the token expiry to 7 days from now
+        token.exp = Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60
       }
       return token
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session?.user && token.userId) {
         session.user.id = token.userId as string
+        // Add expiry to the session
+        session.expires = new Date(
+          (Number(token.exp) ?? 0) * 1000,
+        ).toISOString()
 
-        // Check and initialize database during session creation
-        try {
-          await initializeUserDatabase(session.user.id)
-        } catch (error) {
-          console.error(
-            "Error checking/initializing database during session:",
-            error,
-          )
-          // Don't throw the error to avoid breaking the auth flow
+        // Initialize user database only once per session
+        if (!token.dbInitialized) {
+          try {
+            await initializeUserDatabase(session.user.id)
+            token.dbInitialized = true
+          } catch (error) {
+            console.error(
+              "Error checking/initializing database during session:",
+              error,
+            )
+            // Don't throw the error to avoid breaking the auth flow
+          }
         }
       }
       return session
@@ -85,7 +95,7 @@ export const authOptions = {
   },
   pages: {
     signIn: "/auth/signin",
-    error: "/auth/error", // Add this line to handle auth errors
+    error: "/auth/error",
   },
   secret: process.env.NEXTAUTH_SECRET,
 }

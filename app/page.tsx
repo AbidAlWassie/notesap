@@ -1,20 +1,20 @@
 // app/page.tsx
 import { auth } from "@/auth"
-import { SessionProvider } from "@/components/providers/SessionProvider"
-import UI from "./ui"
+import NotesList from "@/components/NotesList"
+import { getNotes } from "@/lib/user-notes"
 
 export default async function Home() {
   const session = await auth()
-  return (
-    <SessionProvider session={session}>
-      <UI />
-    </SessionProvider>
-  )
-}
 
-export type SearchParams = { [key: string]: string | string[] | undefined }
+  if (!session?.user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-900">
+        <div className="text-center">Not Found</div>
+      </div>
+    )
+  }
 
-export interface PageProps {
-  params: Promise<{ [key: string]: string }>
-  searchParams: Promise<SearchParams>
+  const notes = await getNotes(session.user.id)
+
+  return <NotesList notes={notes} userId={session.user.id} />
 }

@@ -1,7 +1,6 @@
 // app/ui.tsx
 "use client"
 import Footer from "@/components/layouts/Footer"
-import { Navbar } from "@/components/layouts/Navbar"
 import Notes from "@/components/Notes"
 import { useSession } from "next-auth/react"
 import Link from "next/link"
@@ -12,7 +11,6 @@ export default function UI() {
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-900 text-slate-100">
-      <Navbar />
       <div className="flex-grow">
         {status === "loading" && <p className="py-8 text-center">Loading...</p>}
 
@@ -28,7 +26,7 @@ export default function UI() {
           </div>
         )}
 
-        {status === "authenticated" && <Notes />}
+        {status === "authenticated" && <Notes initialNotes={[]} userId={""} />}
       </div>
       <Footer />
     </div>

@@ -1,8 +1,11 @@
 // app/layout.tsx
-import { ThemeProvider } from "@/components/providers/ThemeProvider"
+import { auth } from "@/auth"
+import { Navbar } from "@/components/layouts/Navbar"
+import { SessionProvider } from "@/components/providers/SessionProvider"
+import "@/styles/editor.css"
+import "@/styles/globals.css"
 import type { Metadata } from "next"
 import { Geist, Azeret_Mono as Geist_Mono } from "next/font/google"
-import "./../styles/globals.css"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,21 +18,26 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Notesap | An elegant note-taking app",
-  description: "Developed by Abid Al Wassie",
+  title: "Notes App",
+  description: "A simple note-taking application",
 }
 
 export default async function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
+  const session = await auth()
+
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider>{children}</ThemeProvider>
+        <SessionProvider session={session}>
+          <Navbar />
+          {children}
+        </SessionProvider>
       </body>
     </html>
   )
