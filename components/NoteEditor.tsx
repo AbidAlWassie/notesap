@@ -17,7 +17,7 @@ import { useEditor } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { Loader2, Trash } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import "./../styles/editor.css"
 import Editor from "./Editor"
 
@@ -26,6 +26,8 @@ interface Note {
   title: string
   content: string
 }
+
+const STORAGE_KEY = "unsaved_note"
 
 export default function NoteEditor({
   userId,
@@ -37,7 +39,19 @@ export default function NoteEditor({
   const [title, setTitle] = useState(initialNote?.title || "")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isOnline, setIsOnline] = useState(
+    typeof navigator !== "undefined" ? navigator.onLine : true,
+  )
   const router = useRouter()
+
+  const saveToLocalStorage = useCallback(
+    (title: string, content: string) => {
+      if (!initialNote) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ title, content }))
+      }
+    },
+    [initialNote],
+  )
 
   const editor = useEditor({
     extensions: [
@@ -54,29 +68,82 @@ export default function NoteEditor({
     ],
     content: initialNote?.content || "",
     editable: true,
-    immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      saveToLocalStorage(title, editor.getHTML())
+    },
   })
 
-  const handleSave = async () => {
-    if (!title.trim() || !editor?.getHTML()) {
-      setError("Title and content are required")
-      return
-    }
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
 
-    setIsLoading(true)
-    setError(null)
-    try {
-      if (initialNote) {
-        await updateNoteAction(userId, initialNote.id, title, editor.getHTML())
-      } else {
-        await createNoteAction(userId, title, editor.getHTML())
-      }
-      router.push("/")
-    } catch (error) {
-      console.error("Failed to save note:", error)
-      setError("Failed to save note. Please try again.")
+    window.addEventListener("online", handleOnline)
+    window.addEventListener("offline", handleOffline)
+
+    return () => {
+      window.removeEventListener("online", handleOnline)
+      window.removeEventListener("offline", handleOffline)
     }
-    setIsLoading(false)
+  }, [])
+
+  useEffect(() => {
+    if (!initialNote) {
+      const savedNote = loadFromLocalStorage()
+      if (savedNote) {
+        setTitle(savedNote.title)
+        editor?.commands.setContent(savedNote.content)
+      }
+    }
+  }, [initialNote, editor])
+
+  useEffect(() => {
+    if (editor) {
+      saveToLocalStorage(title, editor.getHTML())
+    }
+  }, [title, editor, saveToLocalStorage])
+
+  const handleSave = useCallback(
+    async (saveTitle = title, saveContent = editor?.getHTML() || "") => {
+      if (!saveTitle.trim() || !saveContent) {
+        setError("Title and content are required")
+        return
+      }
+
+      setIsLoading(true)
+      setError(null)
+      try {
+        if (initialNote) {
+          await updateNoteAction(userId, initialNote.id, saveTitle, saveContent)
+        } else {
+          await createNoteAction(userId, saveTitle, saveContent)
+        }
+        clearLocalStorage()
+        router.push("/")
+      } catch (error) {
+        console.error("Failed to save note:", error)
+        setError("Failed to save note. Please try again.")
+      }
+      setIsLoading(false)
+    },
+    [title, editor, userId, initialNote, router],
+  )
+
+  useEffect(() => {
+    if (isOnline) {
+      const savedNote = loadFromLocalStorage()
+      if (savedNote && savedNote.title && savedNote.content) {
+        handleSave(savedNote.title, savedNote.content)
+      }
+    }
+  }, [isOnline, handleSave])
+
+  const loadFromLocalStorage = () => {
+    const savedNote = localStorage.getItem(STORAGE_KEY)
+    return savedNote ? JSON.parse(savedNote) : null
+  }
+
+  const clearLocalStorage = () => {
+    localStorage.removeItem(STORAGE_KEY)
   }
 
   const handleDelete = async () => {
@@ -118,7 +185,10 @@ export default function NoteEditor({
           <div className="flex justify-between">
             <Button
               variant="ghost"
-              onClick={() => router.push("/")}
+              onClick={() => {
+                clearLocalStorage()
+                router.push("/")
+              }}
               className="text-indigo-100 hover:bg-indigo-800 hover:text-indigo-50"
             >
               Cancel
@@ -135,7 +205,7 @@ export default function NoteEditor({
                 </Button>
               )}
               <Button
-                onClick={handleSave}
+                onClick={() => handleSave()}
                 disabled={isLoading || !title.trim()}
                 className="bg-indigo-600 text-indigo-50 hover:bg-indigo-700"
               >
