@@ -7,6 +7,15 @@ import {
 } from "@/app/actions"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import Color from "@tiptap/extension-color"
 import Highlight from "@tiptap/extension-highlight"
@@ -42,6 +51,7 @@ export default function NoteEditor({
   const [isOnline, setIsOnline] = useState(
     typeof navigator !== "undefined" ? navigator.onLine : true,
   )
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const router = useRouter()
 
   const saveToLocalStorage = useCallback(
@@ -189,20 +199,54 @@ export default function NoteEditor({
                 clearLocalStorage()
                 router.push("/")
               }}
-              className="text-indigo-100 hover:bg-indigo-800 hover:text-indigo-50"
+              className="bg-slate-600 text-indigo-100 hover:bg-slate-700 hover:text-indigo-50"
             >
               Cancel
             </Button>
             <div className="flex gap-2">
               {initialNote && (
-                <Button
-                  variant="destructive"
-                  onClick={handleDelete}
-                  className="bg-red-600 text-red-50 hover:bg-red-700"
+                <Dialog
+                  open={isDeleteDialogOpen}
+                  onOpenChange={setIsDeleteDialogOpen}
                 >
-                  <Trash className="mr-2 h-4 w-4" />
-                  Delete
-                </Button>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      className="bg-red-600 text-red-50 hover:bg-red-700"
+                    >
+                      <Trash className="mr-2 h-4 w-4" />
+                      Delete
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="border-indigo-700 bg-indigo-900 text-indigo-100 sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Confirm Deletion</DialogTitle>
+                      <DialogDescription className="text-indigo-300">
+                        Are you sure you want to delete this note? This action
+                        cannot be undone.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                      <Button
+                        variant="ghost"
+                        onClick={() => setIsDeleteDialogOpen(false)}
+                        className="bg-slate-600 text-indigo-100 hover:bg-slate-700 hover:text-indigo-50"
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={() => {
+                          setIsDeleteDialogOpen(false)
+                          handleDelete()
+                        }}
+                        className="bg-red-600 text-red-50 hover:bg-red-700"
+                      >
+                        Delete
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               )}
               <Button
                 onClick={() => handleSave()}
