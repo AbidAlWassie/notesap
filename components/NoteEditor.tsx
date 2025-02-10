@@ -1,3 +1,4 @@
+// components/NoteEditor.tsx
 "use client"
 
 import {
@@ -46,12 +47,15 @@ export default function NoteEditor({
   initialNote?: Note
 }) {
   const [title, setTitle] = useState(initialNote?.title || "")
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isOnline, setIsOnline] = useState(
     typeof navigator !== "undefined" ? navigator.onLine : true,
   )
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
   const router = useRouter()
 
   const saveToLocalStorage = useCallback(
@@ -112,40 +116,28 @@ export default function NoteEditor({
     }
   }, [title, editor, saveToLocalStorage])
 
-  const handleSave = useCallback(
-    async (saveTitle = title, saveContent = editor?.getHTML() || "") => {
-      if (!saveTitle.trim() || !saveContent) {
-        setError("Title and content are required")
-        return
-      }
-
-      setIsLoading(true)
-      setError(null)
-      try {
-        if (initialNote) {
-          await updateNoteAction(userId, initialNote.id, saveTitle, saveContent)
-        } else {
-          await createNoteAction(userId, saveTitle, saveContent)
-        }
-        clearLocalStorage()
-        router.push("/")
-      } catch (error) {
-        console.error("Failed to save note:", error)
-        setError("Failed to save note. Please try again.")
-      }
-      setIsLoading(false)
-    },
-    [title, editor, userId, initialNote, router],
-  )
-
-  useEffect(() => {
-    if (isOnline) {
-      const savedNote = loadFromLocalStorage()
-      if (savedNote && savedNote.title && savedNote.content) {
-        handleSave(savedNote.title, savedNote.content)
-      }
+  const handleSave = useCallback(async () => {
+    if (!title.trim() || !editor?.getHTML()) {
+      setError("Title and content are required")
+      return
     }
-  }, [isOnline, handleSave])
+
+    setIsSaving(true)
+    setError(null)
+    try {
+      if (initialNote) {
+        await updateNoteAction(userId, initialNote.id, title, editor.getHTML())
+      } else {
+        await createNoteAction(userId, title, editor.getHTML())
+      }
+      clearLocalStorage()
+      router.push("/")
+    } catch (error) {
+      console.error("Failed to save note:", error)
+      setError("Failed to save note. Please try again.")
+    }
+    setIsSaving(false)
+  }, [title, editor, userId, initialNote, router])
 
   const loadFromLocalStorage = () => {
     const savedNote = localStorage.getItem(STORAGE_KEY)
@@ -249,11 +241,11 @@ export default function NoteEditor({
                 </Dialog>
               )}
               <Button
-                onClick={() => handleSave()}
-                disabled={isLoading || !title.trim()}
+                onClick={handleSave}
+                disabled={isSaving || !title.trim()}
                 className="bg-indigo-600 text-indigo-50 hover:bg-indigo-700"
               >
-                {isLoading ? (
+                {isSaving ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Saving...
