@@ -1,4 +1,4 @@
-// app/api/auth/signin/page.tsx
+// app/(auth)/signin/page.tsx
 "use client"
 
 import { Button } from "@/components/ui/button"
@@ -68,8 +68,6 @@ function SignInComponent() {
     try {
       setLoadingProvider("email")
       // Implement your signup logic here
-      // You'll need to create an API endpoint to handle user registration
-      // For now, this is a placeholder
       console.log("Sign up with:", {
         email: signupEmail,
         username: signupUsername,
@@ -83,11 +81,11 @@ function SignInComponent() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-900 to-indigo-900 px-4 py-12 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md border-indigo-600 bg-indigo-950/80 backdrop-blur-sm">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-900 to-indigo-900 px-4 py-12 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md border-indigo-400 bg-indigo-950/90 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="text-center text-3xl font-extrabold text-indigo-100">
-            Welcome to Stockflow
+            Welcome to myApp
           </CardTitle>
           <CardDescription className="pt-2 text-center text-indigo-300">
             Choose your preferred sign-in method
@@ -154,16 +152,16 @@ function SignInComponent() {
             </div>
           </div>
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-indigo-900/50 text-slate-300">
+            <TabsList className="grid w-full grid-cols-2 bg-indigo-900/50 text-indigo-300">
               <TabsTrigger
                 value="signin"
-                className="text-slate-300 data-[state=active]:bg-indigo-800"
+                className="text-indigo-300 data-[state=active]:bg-indigo-800 data-[state=active]:text-indigo-50"
               >
                 Sign In
               </TabsTrigger>
               <TabsTrigger
                 value="signup"
-                className="text-slate-300 data-[state=active]:bg-indigo-800"
+                className="text-indigo-300 data-[state=active]:bg-indigo-800 data-[state=active]:text-indigo-50"
               >
                 Sign Up
               </TabsTrigger>
@@ -180,7 +178,7 @@ function SignInComponent() {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="border-slate-700 bg-indigo-900/50 text-indigo-100 placeholder:text-indigo-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+                  className="border-indigo-700 bg-indigo-900/50 text-indigo-100 placeholder:text-indigo-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                 />
               </div>
               <div className="space-y-2">
@@ -194,7 +192,7 @@ function SignInComponent() {
                     placeholder="Enter your password"
                     value={signinPassword}
                     onChange={(e) => setSigninPassword(e.target.value)}
-                    className="border-slate-700 bg-indigo-900/50 text-indigo-100 placeholder:text-indigo-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+                    className="border-indigo-700 bg-indigo-900/50 text-indigo-100 placeholder:text-indigo-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                   />
                   <button
                     type="button"
@@ -212,7 +210,7 @@ function SignInComponent() {
               <Button
                 onClick={() => handleSignIn("email")}
                 disabled={loadingProvider !== null || !email || !signinPassword}
-                className="w-full bg-purple-600 text-white hover:bg-purple-700"
+                className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
               >
                 {loadingProvider === "email" ? "Signing in..." : "Sign in"}
               </Button>
@@ -228,6 +226,7 @@ function SignInComponent() {
                   type="text"
                   value={signupUsername}
                   onChange={(e) => setSignupUsername(e.target.value)}
+                  className="border-indigo-700 bg-indigo-900/50 text-indigo-100 placeholder:text-indigo-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                 />
               </div>
               <div className="space-y-2">
@@ -240,7 +239,7 @@ function SignInComponent() {
                   placeholder="Enter your email"
                   value={signupEmail}
                   onChange={(e) => setSignupEmail(e.target.value)}
-                  className="border-slate-700 bg-indigo-900/50 text-indigo-100 placeholder:text-indigo-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+                  className="border-indigo-700 bg-indigo-900/50 text-indigo-100 placeholder:text-indigo-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                 />
               </div>
               <div className="space-y-2">
@@ -254,7 +253,7 @@ function SignInComponent() {
                     placeholder="Choose a password"
                     value={signupPassword}
                     onChange={(e) => setSignupPassword(e.target.value)}
-                    className="border-slate-700 bg-indigo-900/50 text-indigo-100 placeholder:text-indigo-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+                    className="border-indigo-700 bg-indigo-900/50 text-indigo-100 placeholder:text-indigo-400 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                   />
                   <button
                     type="button"
@@ -272,7 +271,7 @@ function SignInComponent() {
               <Button
                 onClick={() => handleSignUp()}
                 disabled={loadingProvider !== null}
-                className="w-full bg-purple-600 text-white hover:bg-purple-700"
+                className="w-full bg-indigo-600 text-white hover:bg-indigo-700"
               >
                 {loadingProvider === "email"
                   ? "Creating account..."
@@ -285,13 +284,13 @@ function SignInComponent() {
           <p className="text-xs text-indigo-300">
             By signing in, you agree to our Terms of Service and Privacy Policy.
           </p>
-          <div className="text-xs text-slate-400">
+          <div className="text-xs text-indigo-400">
             <p>
               Developed with 🍵 by{" "}
               <Link
                 href="https://github.com/AbidAlWassie"
                 target="_blank"
-                className="font-bold text-blue-400"
+                className="font-bold text-indigo-300"
               >
                 Abid Al Wassie
               </Link>

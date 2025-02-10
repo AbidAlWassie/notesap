@@ -1,5 +1,5 @@
 // app/api/notes/id/route.ts
-import { auth } from "@/auth"
+import { auth } from "@/app/(auth)/auth"
 import { deleteNote, updateNote } from "@/lib/user-notes"
 import { NextRequest, NextResponse } from "next/server"
 

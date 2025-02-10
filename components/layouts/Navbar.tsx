@@ -74,7 +74,7 @@ export function Navbar() {
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-indigo-800" />
             <DropdownMenuItem
-              onClick={() => router.push("/api/auth/signout")}
+              onClick={() => router.push("/signout")}
               className="cursor-pointer py-2 text-indigo-100"
             >
               Log out

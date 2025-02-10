@@ -1,5 +1,5 @@
 // app/layout.tsx
-import { auth } from "@/auth"
+import { auth } from "@/app/(auth)/auth"
 import { Navbar } from "@/components/layouts/Navbar"
 import { SessionProvider } from "@/components/providers/SessionProvider"
 import "@/styles/editor.css"

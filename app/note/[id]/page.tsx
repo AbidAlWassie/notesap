@@ -1,5 +1,5 @@
 // app/note/[id]/page.tsx
-import { auth } from "@/auth"
+import { auth } from "@/app/(auth)/auth"
 import NoteEditor from "@/components/NoteEditor"
 import { getNoteById } from "@/lib/user-notes"
 

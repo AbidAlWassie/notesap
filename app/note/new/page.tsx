@@ -1,5 +1,5 @@
 // app/note/new/page.tsx
-import { auth } from "@/auth"
+import { auth } from "@/app/(auth)/auth"
 import NoteEditor from "@/components/NoteEditor"
 
 export default async function NewNotePage() {
